@@ -1,0 +1,19 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "lobbies": {
+      "$code": {
+        ".read": "auth != null",
+        ".write": "auth != null && ((!data.exists() && newData.exists() && newData.child('hostId').val() === auth.uid && newData.child('players').child(auth.uid).exists()) || (data.exists() && !newData.exists() && data.child('hostId').val() === auth.uid))",
+        ".validate": "!newData.exists() || (newData.hasChildren(['hostId', 'createdAt', 'players']) && newData.child('hostId').isString() && newData.child('createdAt').isNumber() && newData.child('players').hasChild(newData.child('hostId').val()) && $code.matches(/^[0-9]{4}$/))",
+        "players": {
+          "$playerId": {
+            ".write": "auth != null && auth.uid === $playerId",
+            ".validate": "!newData.exists() || (newData.hasChildren(['name', 'ready', 'joinedAt']) && newData.child('name').isString() && newData.child('name').val().length <= 24 && newData.child('ready').isBoolean() && newData.child('joinedAt').isNumber())"
+          }
+        }
+      }
+    }
+  }
+}
