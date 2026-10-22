@@ -1,0 +1,81 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GIF Meme Generator</title>
+
+  <style>
+    #results {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 20px 0;
+    }
+
+    #results img {
+      width: 150px;
+      cursor: pointer;
+    }
+
+    #memePreview {
+      width: 400px;
+      max-width: 100%;
+      margin: 20px 0;
+    }
+
+    #captionBar {
+      background: white;
+      color: black;
+      font: bold 24px Arial, sans-serif;
+      text-align: center;
+      padding: 15px;
+      overflow-wrap: anywhere;
+    }
+
+    #captionBar:empty {
+      display: none;
+    }
+
+    #gifPreview {
+      display: block;
+      width: 100%;
+    }
+
+    button {
+      padding: 10px 16px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>GIF Meme Generator</h1>
+
+  <input id="searchInput" placeholder="Search GIPHY">
+  <button id="searchButton">Search GIFs</button>
+
+  <div id="results"></div>
+
+  <div id="memePreview">
+    <div id="captionBar"></div>
+    <img id="gifPreview" alt="Selected GIF">
+  </div>
+
+  <input id="topText" placeholder="Enter caption">
+
+  <button id="applyTextBtn">
+    Apply Text to GIF
+  </button>
+
+  <button id="downloadBtn" disabled>
+    Download GIF
+  </button>
+
+  <p id="status" role="status"></p>
+
+  <script src="./Js/gif.js"></script>
+  <script src="./Js/gif.worker.js"></script>
+  <script type="module" src="./Js/Genorator.js"></script>
+</body>
+</html>

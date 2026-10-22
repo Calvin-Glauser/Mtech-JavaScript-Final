@@ -1,37 +1,38 @@
-const GIPHY_API_KEY = 'eP4NQm1jDbwWt8aLgp8AIH1KTZsdfQLn';
-const GIPHY_API_URL = 'https://api.giphy.com/v1/gifs';
 
-async function fetchGifs(endpoint, options = {}) {
-	const params = new URLSearchParams({
-		api_key: GIPHY_API_KEY,
-		limit: String(Math.min(Math.max(Number(options.limit) || 25, 1), 50)),
-		rating: options.rating || 'g'
-	});
+const API_KEY = "eP4NQm1jDbwWt8aLgp8AIH1KTZsdfQLn";
 
-	if (options.query) params.set('q', options.query);
-	if (options.language) params.set('lang', options.language);
-	if (options.offset) params.set('offset', String(Math.max(Number(options.offset) || 0, 0)));
+export async function searchGIFs(searchTerm) {
+  const term = String(searchTerm || "").trim();
 
-	const response = await fetch(`${GIPHY_API_URL}/${endpoint}?${params}`);
-	if (!response.ok) {
-		throw new Error(`GIPHY request failed (${response.status}).`);
-	}
+  if (!term) {
+    return [];
+  }
 
-	const result = await response.json();
-	if (result.meta?.status !== 200) {
-		throw new Error(result.meta?.msg || 'GIPHY returned an error.');
-	}
+  const params = new URLSearchParams({
+    api_key: API_KEY,
+    q: term,
+    limit: "5",
+    rating: "g"
+  });
 
-	return result.data;
+  const response = await fetch(
+    `https://api.giphy.com/v1/gifs/search?${params}`
+  );
+
+  if (!response.ok) {
+      const details = await response.text();
+
+        throw new Error(
+            `GIPHY error ${response.status}: ${details}`
+        );
+  }
+
+  const result = await response.json();
+
+  return result.data.map(gif => ({
+    id: gif.id,
+    preview: gif.images.fixed_width.url,
+    original: gif.images.original.url
+  }));
 }
 
-export function searchGifs(query, options = {}) {
-	const search = String(query || '').trim();
-	if (!search) return Promise.resolve([]);
-
-	return fetchGifs('search', { ...options, query: search });
-}
-
-export function getTrendingGifs(options = {}) {
-	return fetchGifs('trending', options);
-}
