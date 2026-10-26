@@ -25,6 +25,7 @@ const elements = {
 	statusHeading: document.querySelector('#statusHeading'),
 	statusDescription: document.querySelector('#statusDescription'),
 	readyButton: document.querySelector('#readyButton'),
+	startButton: document.querySelector('#startButton'),
 	leaveButton: document.querySelector('#leaveButton'),
 	lobbyError: document.querySelector('#lobbyError'),
 	copyCodeButton: document.querySelector('#copyCodeButton')
@@ -86,6 +87,10 @@ function subscribeToLobby(code) {
 			resetToHome('This lobby has been closed.');
 			return;
 		}
+		if (activeLobby.game && !window.location.pathname.endsWith('/genorator.html')) {
+			window.location.href = gameUrl(code);
+			return;
+		}
 		renderLobby();
 	}, (error) => {
 		elements.lobbyError.textContent = displayError(error, 'Could not load this lobby.');
@@ -138,10 +143,42 @@ function renderLobby() {
 
 	const myPlayer = activeLobby.players?.[user.uid];
 	const ready = Boolean(myPlayer?.ready);
+	const playersReady = players.length >= 2 && players.every(([, player]) => player.ready);
+	elements.startButton.classList.toggle('hidden', !isHost);
+	elements.startButton.disabled = !playersReady;
+	elements.startButton.title = players.length < 2 ? 'At least two players are needed.' : playersReady ? '' : 'Everyone must be ready first.';
 	elements.statusHeading.textContent = ready ? 'You’re ready' : 'Ready when you are';
 	elements.statusDescription.textContent = ready ? 'The host can see you are set to play.' : 'Let the host know you are set to play.';
 	elements.readyButton.textContent = ready ? 'Cancel ready' : "I'm ready";
 	elements.readyButton.setAttribute('aria-pressed', String(ready));
+}
+
+function gameUrl(code) {
+	return `genorator.html?lobby=${encodeURIComponent(code)}`;
+}
+
+async function startGame() {
+	if (!activeCode || !isHost || !activeLobby) return;
+	const players = Object.entries(activeLobby.players || {}).sort(([firstId, first], [secondId, second]) => {
+		if (firstId === activeLobby.hostId) return -1;
+		if (secondId === activeLobby.hostId) return 1;
+		return (first.name || '').localeCompare(second.name || '');
+	});
+	if (players.length < 2 || players.some(([, player]) => !player.ready)) return;
+	const scores = Object.fromEntries(players.map(([playerId]) => [playerId, 0]));
+	try {
+		await set(ref(database, `lobbies/${activeCode}/game`), {
+			phase: 'pick',
+			round: 1,
+			pickerId: players[Math.floor(Math.random() * players.length)][0],
+			scores,
+			matchId: String(Date.now()),
+			updatedAt: Date.now()
+		});
+		window.location.href = gameUrl(activeCode);
+	} catch (error) {
+		elements.lobbyError.textContent = displayError(error, 'Could not start the game.');
+	}
 }
 
 async function createLobby() {
@@ -171,7 +208,6 @@ async function createLobby() {
 		elements.hostButton.disabled = false;
 	}
 }
-
 async function joinLobby(event) {
 	event.preventDefault();
 	const name = getPlayerName();
@@ -189,6 +225,10 @@ async function joinLobby(event) {
 		const room = snapshot.val();
 		if (!room) {
 			elements.joinError.textContent = 'No lobby found with that code. Check it and try again.';
+			return;
+		}
+		if (room.game) {
+			elements.joinError.textContent = 'That game has already started.';
 			return;
 		}
 		await set(ref(database, `lobbies/${code}/players/${user.uid}`), { name, ready: false, joinedAt: Date.now() });
@@ -255,6 +295,7 @@ elements.lobbyCode.addEventListener('input', () => {
 	elements.lobbyCode.value = elements.lobbyCode.value.replace(/\D/g, '').slice(0, 4);
 });
 elements.readyButton.addEventListener('click', toggleReady);
+elements.startButton.addEventListener('click', startGame);
 elements.leaveButton.addEventListener('click', leaveLobby);
 elements.copyCodeButton.addEventListener('click', async () => {
 	try {

@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 		<title>Game Lobby</title>
-		<script type="module" src="/Js/LobbyLogic.js?v=2"></script>
+		<script type="module" src="/Js/LobbyLogic.js?v=4"></script>
 		<style>
 			body { max-width: 720px; margin: 32px auto; padding: 0 16px; font: 16px/1.5 sans-serif; color: #222; }
 			header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ccc; padding-bottom: 12px; }
@@ -90,6 +90,7 @@
 			<h2 id="statusHeading">Ready when you are</h2>
 			<p id="statusDescription">Let the host know you're set to play.</p>
 			<button id="readyButton">I'm ready</button>
+			<button id="startButton" class="hidden" disabled>Start game</button>
 			<button id="leaveButton">Leave lobby</button>
 			<p id="lobbyError" role="alert"></p>
 		</aside>

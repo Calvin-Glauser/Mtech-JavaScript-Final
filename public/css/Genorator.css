@@ -1,0 +1,64 @@
+    #results {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 20px 0;
+    }
+
+    #results img {
+      width: 150px;
+      cursor: pointer;
+    }
+
+    #memePreview {
+      position: relative;
+      width: 400px;
+      max-width: 100%;
+      margin: 20px auto;
+    }
+
+    #captionBar {
+      position: absolute;
+      z-index: 1;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: white;
+      color: black;
+      font: bold 24px Arial, sans-serif;
+      text-align: center;
+      padding: 15px;
+      overflow-wrap: anywhere;
+    }
+
+    #captionBar:empty {
+      display: none;
+    }
+
+    #gifPreview {
+      display: block;
+      width: 100%;
+    }
+
+    button {
+      padding: 20px 16px;
+      cursor: pointer;
+    }   
+
+    #icobtn {
+
+      vertical-align: middle;
+      font-size: 12px;
+    }
+
+    input {
+      padding: 19px;
+      width: 200px;
+    }
+
+    body{
+
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
+    }

@@ -12,6 +12,39 @@
             ".write": "auth != null && auth.uid === $playerId",
             ".validate": "!newData.exists() || (newData.hasChildren(['name', 'ready', 'joinedAt']) && newData.child('name').isString() && newData.child('name').val().length <= 24 && newData.child('ready').isBoolean() && newData.child('joinedAt').isNumber())"
           }
+        },
+        "game": {
+          ".write": "auth != null && auth.uid === root.child('lobbies').child($code).child('hostId').val()"
+        },
+        "rounds": {
+          "$matchId": {
+            "$round": {
+              "pick": {
+                "$playerId": {
+                  ".write": "auth != null && auth.uid === $playerId && root.child('lobbies').child($code).child('players').child($playerId).exists() && root.child('lobbies').child($code).child('game').child('matchId').val() === $matchId && root.child('lobbies').child($code).child('game').child('phase').val() === 'pick' && root.child('lobbies').child($code).child('game').child('pickerId').val() === $playerId",
+                  ".validate": "!newData.exists() || (newData.hasChildren(['id', 'original', 'preview']) && newData.child('id').isString() && newData.child('original').isString() && newData.child('preview').isString())"
+                }
+              },
+              "submissions": {
+                "$playerId": {
+                  ".write": "auth != null && auth.uid === $playerId && root.child('lobbies').child($code).child('players').child($playerId).exists() && root.child('lobbies').child($code).child('game').child('matchId').val() === $matchId && root.child('lobbies').child($code).child('game').child('phase').val() === 'caption' && root.child('lobbies').child($code).child('game').child('pickerId').val() !== $playerId",
+                  ".validate": "!newData.exists() || (newData.hasChildren(['caption', 'submittedAt']) && newData.child('caption').isString() && newData.child('caption').val().length <= 120 && newData.child('submittedAt').isNumber())"
+                }
+              },
+              "votes": {
+                "$playerId": {
+                  ".write": "auth != null && auth.uid === $playerId && auth.uid === root.child('lobbies').child($code).child('game').child('pickerId').val() && root.child('lobbies').child($code).child('game').child('matchId').val() === $matchId && root.child('lobbies').child($code).child('game').child('phase').val() === 'judge'",
+                  ".validate": "!newData.exists() || newData.isString()"
+                }
+              }
+            }
+          }
+        },
+        "rematch": {
+          "$playerId": {
+            ".write": "auth != null && auth.uid === $playerId && root.child('lobbies').child($code).child('players').child($playerId).exists()",
+            ".validate": "!newData.exists() || newData.isString()"
+          }
         }
       }
     }
