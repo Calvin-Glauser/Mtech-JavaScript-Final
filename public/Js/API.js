@@ -29,10 +29,14 @@ export async function searchGIFs(searchTerm) {
 
   const result = await response.json();
 
-  return result.data.map(gif => ({
-    id: gif.id,
-    preview: gif.images.fixed_width.url,
-    original: gif.images.original.url
-  }));
+  return (result.data || []).flatMap(gif => {
+    const images = gif.images || {};
+    const original = images.original?.url || images.downsized_large?.url || images.downsized?.url;
+    const preview = images.fixed_width_downsampled?.url
+      || images.fixed_width?.url
+      || images.downsized?.url
+      || original;
+    return original && preview ? [{ id: gif.id, preview, original }] : [];
+  });
 }
 

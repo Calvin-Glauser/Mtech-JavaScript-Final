@@ -76,7 +76,7 @@ function drawCaption(ctx, text, width, barHeight) {
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
 
-  // Fit long captions into the bar.
+
   const maxWidth = width * 0.94;
   const words = text.split(/\s+/);
   const lines = [];
@@ -126,13 +126,13 @@ async function downloadGIF() {
       ? Math.max(70, Math.ceil(width * 0.2))
       : 0;
 
-    // Canvas for reconstructing GIF animation.
+
     const source = document.createElement("canvas");
     source.width = width;
     source.height = height;
     const sourceCtx = source.getContext("2d");
 
-    // Canvas for the finished meme.
+
     const canvas = document.createElement("canvas");
     canvas.width = width;
     canvas.height = height + barHeight;
@@ -155,7 +155,7 @@ const encoder = new window.GIF({
     let savedImage = null;
 
     for (const frame of frames) {
-      // Apply the previous frame's disposal instruction.
+
       if (previous?.disposalType === 2) {
         sourceCtx.clearRect(
           previous.dims.left,
@@ -167,7 +167,7 @@ const encoder = new window.GIF({
         sourceCtx.putImageData(savedImage, 0, 0);
       }
 
-      // Save state before drawing frames using restore disposal.
+
       savedImage = frame.disposalType === 3
         ? sourceCtx.getImageData(0, 0, width, height)
         : null;
@@ -189,7 +189,7 @@ const encoder = new window.GIF({
         frame.dims.top
       );
 
-      // Render the caption and complete GIF frame.
+
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       if (barHeight) {
@@ -234,6 +234,8 @@ encoder.addFrame(ctx, {
   }
 }
 
-searchButton.addEventListener("click", handleSearch);
-applyBtn.addEventListener("click", applyText);
-downloadBtn.addEventListener("click", downloadGIF);
+if (!new URLSearchParams(window.location.search).has("lobby")) {
+  searchButton.addEventListener("click", handleSearch);
+  applyBtn.addEventListener("click", applyText);
+  downloadBtn.addEventListener("click", downloadGIF);
+}

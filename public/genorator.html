@@ -6,51 +6,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>GIF Meme Generator</title>
 
-  <style>
-    #results {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin: 20px 0;
-    }
+  <link rel="stylesheet" href="./css/Genorator.css">
+  <style>.hidden { display: none !important; } #gameCandidates button { display: block; margin: 8px auto; } #gameCandidates img { display: block; width: 240px; max-width: 100%; margin: 8px auto; }</style>
 
-    #results img {
-      width: 150px;
-      cursor: pointer;
-    }
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=download" />
 
-    #memePreview {
-      width: 400px;
-      max-width: 100%;
-      margin: 20px 0;
-    }
-
-    #captionBar {
-      background: white;
-      color: black;
-      font: bold 24px Arial, sans-serif;
-      text-align: center;
-      padding: 15px;
-      overflow-wrap: anywhere;
-    }
-
-    #captionBar:empty {
-      display: none;
-    }
-
-    #gifPreview {
-      display: block;
-      width: 100%;
-    }
-
-    button {
-      padding: 10px 16px;
-      cursor: pointer;
-    }
-  </style>
 </head>
 <body>
-  <h1>GIF Meme Generator</h1>
+  <a href="index.html"></a>
 
   <input id="searchInput" placeholder="Search GIPHY">
   <button id="searchButton">Search GIFs</button>
@@ -69,13 +32,27 @@
   </button>
 
   <button id="downloadBtn" disabled>
-    Download GIF
+    <span id="icobtn" class="material-symbols-outlined">
+download
+</span>
   </button>
 
   <p id="status" role="status"></p>
 
+  <main id="gameView" class="hidden">
+    <h1 id="gameHeading">GIF game</h1>
+    <p id="gameMessage" role="status"></p>
+    <p id="gameScore"></p>
+    <p id="lastRound"></p>
+    <div id="gameCandidates"></div>
+    <button id="rematchButton" class="hidden">Play again</button>
+    <button id="gameLeaveButton">Leave lobby</button>
+    <p id="gameError" role="alert"></p>
+  </main>
+
   <script src="./Js/gif.js"></script>
   <script src="./Js/gif.worker.js"></script>
   <script type="module" src="./Js/Genorator.js"></script>
+  <script type="module" src="./Js/Game.js"></script>
 </body>
 </html>
