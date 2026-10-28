@@ -5,38 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 		<title>Game Lobby</title>
 		<script type="module" src="/Js/LobbyLogic.js?v=5"></script>
-		<style>
-			body { max-width: 720px; margin: 32px auto; padding: 0 16px; font: 16px/1.5 sans-serif; color: #222; }
-			header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ccc; padding-bottom: 12px; }
-			h1, h2, p { margin-top: 0; }
-			main { padding-top: 24px; }
-			section, article, aside { margin-bottom: 20px; }
-			article, aside { border: 1px solid #ccc; padding: 16px; }
-			label { display: block; margin-bottom: 4px; }
-			input, button { box-sizing: border-box; min-height: 38px; padding: 7px 10px; font: inherit; }
-			input { max-width: 100%; border: 1px solid #999; }
-			button { cursor: pointer; }
-			button:disabled { cursor: not-allowed; }
-			.hidden { display: none !important; }
-			#playerName { display: block; width: 100%; max-width: 320px; margin-bottom: 20px; }
-			#lobbyCode { width: 110px; }
-			#playerList { padding-left: 22px; }
-			#playerList li { padding: 6px 0; }
-			.player-row { display: flex; justify-content: space-between; gap: 12px; }
-			.player-badges { display: flex; gap: 8px; }
-			.badge { font-size: 0.9em; }
-			#setupNotice, [role="alert"] { color: #a21d1d; }
-			#connectionDot { display: inline-block; width: 9px; height: 9px; margin-right: 5px; border-radius: 50%; background: #888; }
-			#connectionDot.connected { background: #27823b; }
-			#connectionDot.disconnected { background: #b3261e; }
-			@media (min-width: 600px) { .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; } }
-    </style>
+
+    <link rel="stylesheet" href="css/Lobby.css">
+
+    <link href="https://fonts.googleapis.com/css2?family=Honk:MORF@15&display=swap" rel="stylesheet">
+
   </head>
   <body>
 
-    <a href="genorator.html">HERE</a>
+
 <header>
-		<strong>Game Lobby</strong>
+		<strong>GIF HAPPENS</strong>
 		<div id="connectionBadge" role="status" aria-live="polite">
 				<span id="connectionDot" class="disconnected"></span>
 				<span id="connectionText">Connecting</span>
@@ -50,21 +29,24 @@
 		</section>
 
 		<section id="homeView">
-			<h1>Host or join a lobby</h1>
+	  <article id="Lobbyname">
+        	<h1>Host or join a lobby</h1>
 
-			<label for="playerName">Your name</label>
-			<input id="playerName" maxlength="24" autocomplete="nickname" placeholder="Enter your name">
+			  <label class="form-label" for="playerName">NAME</label>
+			  <input id="playerName" maxlength="24" autocomplete="nickname" placeholder="Enter your name">
+	  </article>
+
 
 			<div class="actions">
-				<article>
+				<article id="hostLobby">
 					<h2>Host a lobby</h2>
 					<button id="hostButton" disabled>Create lobby</button>
 				</article>
 
-				<article>
+				<article id="joinLobby">
 					<h2>Join a lobby</h2>
 					<form id="joinForm">
-						<label for="lobbyCode">Four-digit code</label>
+						<label class="form-label" for="lobbyCode">Four-digit code</label>
 						<input id="lobbyCode" inputmode="numeric" autocomplete="one-time-code" maxlength="4" pattern="[0-9]{4}" placeholder="0000" aria-describedby="joinError">
 						<button id="joinButton" disabled>Join</button>
 						<p id="joinError" role="alert"></p>

@@ -62,3 +62,30 @@
       text-align: center;
       padding: 20px;
     }
+
+    .hidden {
+      display: none !important;
+    }
+
+    #gameCandidates button {
+      display: block;
+      margin: 8px auto;
+    }
+
+    #gameCandidates img {
+      display: block;
+      width: 240px;
+      max-width: 100%;
+      margin: 8px auto;
+    }
+
+    html.game-mode #searchInput,
+    html.game-mode #searchButton,
+    html.game-mode #results,
+    html.game-mode #memePreview,
+    html.game-mode #topText,
+    html.game-mode #applyTextBtn,
+    html.game-mode #downloadBtn,
+    html.game-mode #status {
+      display: none !important;
+    }
