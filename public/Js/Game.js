@@ -10,6 +10,7 @@ if (!lobbyCode) {
   const elements = {
     gameView: document.querySelector('#gameView'),
     heading: document.querySelector('#gameHeading'),
+    role: document.querySelector('#gameRole'),
     message: document.querySelector('#gameMessage'),
     score: document.querySelector('#gameScore'),
     lastRound: document.querySelector('#lastRound'),
@@ -32,6 +33,9 @@ if (!lobbyCode) {
     elements.search, elements.searchButton, elements.results, elements.preview,
     elements.caption, elements.submitCaption, elements.download, elements.generatorStatus
   ];
+  for (const element of generatorElements) element.classList.add('hidden');
+  elements.gameView.classList.remove('hidden');
+  elements.message.textContent = 'Connecting to the lobby...';
   let database;
   let user;
   let lobby;
@@ -44,6 +48,7 @@ if (!lobbyCode) {
   let alreadySubmitted = false;
   let rematchStarting = false;
   let finishingRoundKey = '';
+  let disconnectCleanupRegistered = false;
   let searchSequence = 0;
 
   function setVisible(element, visible) {
@@ -90,7 +95,7 @@ if (!lobbyCode) {
 
   function syncPickListener() {
     const key = game?.phase === 'pick' && user.uid === lobby?.hostId
-      ? `${game.round}/${game.pickerId}`
+      ? `${game.matchId}/${game.round}/${game.pickerId}`
       : '';
     if (key === pickListenerKey) return;
     if (pickListener) pickListener();
@@ -98,10 +103,10 @@ if (!lobbyCode) {
     pickListenerKey = key;
     if (!key) return;
 
-    const [round, pickerId] = key.split('/');
-    pickListener = onValue(ref(database, `lobbies/${lobbyCode}/rounds/${game.matchId}/${round}/pick/${pickerId}`), async (snapshot) => {
+    const [matchId, round, pickerId] = key.split('/');
+    pickListener = onValue(ref(database, `lobbies/${lobbyCode}/rounds/${matchId}/${round}/pick/${pickerId}`), async (snapshot) => {
       const pickedGIF = snapshot.val();
-      if (!pickedGIF || game?.phase !== 'pick' || String(game.round) !== round) return;
+      if (!pickedGIF || game?.phase !== 'pick' || game.matchId !== matchId || String(game.round) !== round) return;
       try {
         await update(ref(database, `lobbies/${lobbyCode}/game`), {
           phase: 'caption',
@@ -215,29 +220,28 @@ if (!lobbyCode) {
 
   function showJudgeOptions() {
     elements.candidates.replaceChildren();
+    if (user.uid !== game.pickerId) return;
     const submissions = lobby?.rounds?.[game.matchId]?.[game.round]?.submissions || {};
     for (const [playerId, submission] of Object.entries(submissions)) {
       const item = document.createElement('div');
       const caption = document.createElement('p');
       caption.textContent = `${playerName(playerId)}: ${submission.caption || '(no caption)'}`;
       item.append(caption);
-      if (user.uid === game.pickerId) {
-        const option = document.createElement('button');
-        option.type = 'button';
-        option.textContent = `Choose ${playerName(playerId)}`;
-        option.addEventListener('click', async () => {
-          option.disabled = true;
-          elements.message.textContent = 'Submitting your decision...';
-          const votePath = `lobbies/${lobbyCode}/rounds/${game.matchId}/${game.round}/votes/${user.uid}`;
-          try {
-            await set(ref(database, votePath), playerId);
-          } catch (error) {
-            elements.error.textContent = `Could not submit your decision: ${error.message}`;
-            option.disabled = false;
-          }
-        });
-        item.append(option);
-      }
+      const option = document.createElement('button');
+      option.type = 'button';
+      option.textContent = `Choose ${playerName(playerId)}`;
+      option.addEventListener('click', async () => {
+        option.disabled = true;
+        elements.message.textContent = 'Submitting your decision...';
+        const votePath = `lobbies/${lobbyCode}/rounds/${game.matchId}/${game.round}/votes/${user.uid}`;
+        try {
+          await set(ref(database, votePath), playerId);
+        } catch (error) {
+          elements.error.textContent = `Could not submit your decision: ${error.message}`;
+          option.disabled = false;
+        }
+      });
+      item.append(option);
       elements.candidates.append(item);
     }
   }
@@ -260,13 +264,18 @@ if (!lobbyCode) {
   function render() {
     if (!lobby || !game) return;
     hideGeneratorControls();
+    document.documentElement.classList.remove('game-mode');
     setVisible(elements.gameView, true);
     elements.error.textContent = '';
     elements.heading.textContent = `Round ${game.round || 1}`;
-    showPlayerScores();
+    elements.role.textContent = user.uid === game.pickerId ? 'Role: Judge' : 'Role: Player';
+    setVisible(elements.score, game.phase === 'finished');
+    setVisible(elements.lastRound, game.phase === 'finished');
+    if (game.phase === 'finished') showPlayerScores();
     renderLastRound();
     setVisible(elements.rematch, game.phase === 'finished');
-    setVisible(elements.leave, true);
+    setVisible(elements.leave, game.phase === 'finished');
+    elements.leave.textContent = 'Return to main menu';
     elements.candidates.replaceChildren();
 
     const isPicker = user.uid === game.pickerId;
@@ -314,7 +323,7 @@ if (!lobbyCode) {
       elements.message.textContent = isPicker
         ? 'Choose the caption that won.'
         : `Waiting for ${playerName(game.pickerId)} to choose the winner.`;
-      showJudgeOptions();
+      if (isPicker) showJudgeOptions();
     } else if (game.phase === 'finished') {
       const winners = (game.winnerIds || []).map(playerName).join(', ');
       elements.message.textContent = `${winners} ${game.winnerIds?.length === 1 ? 'wins' : 'win'} the game! First to 2 points.`;
@@ -478,14 +487,22 @@ if (!lobbyCode) {
       lobby = snapshot.val();
       if (!lobby) {
         elements.message.textContent = 'This lobby has been closed.';
-        elements.leave.textContent = 'Return home';
-        elements.leave.onclick = () => { window.location.href = 'index.html'; };
+        elements.leave.textContent = 'Return to main menu';
+        setVisible(elements.leave, true);
+        setVisible(elements.rematch, false);
         return;
       }
       game = lobby.game;
       if (!game) {
         elements.message.textContent = 'This lobby does not have an active game.';
         return;
+      }
+      if (!disconnectCleanupRegistered) {
+        const disconnectRef = user.uid === lobby.hostId
+          ? ref(database, `lobbies/${lobbyCode}`)
+          : ref(database, `lobbies/${lobbyCode}/players/${user.uid}`);
+        await onDisconnect(disconnectRef).remove();
+        disconnectCleanupRegistered = true;
       }
       if (game.phase !== 'finished') rematchStarting = false;
       render();

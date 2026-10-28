@@ -7,7 +7,8 @@
   <title>GIF Meme Generator</title>
 
   <link rel="stylesheet" href="./css/Genorator.css">
-  <style>.hidden { display: none !important; } #gameCandidates button { display: block; margin: 8px auto; } #gameCandidates img { display: block; width: 240px; max-width: 100%; margin: 8px auto; }</style>
+  <style>.hidden { display: none !important; } #gameCandidates button { display: block; margin: 8px auto; } #gameCandidates img { display: block; width: 240px; max-width: 100%; margin: 8px auto; } html.game-mode #searchInput, html.game-mode #searchButton, html.game-mode #results, html.game-mode #memePreview, html.game-mode #topText, html.game-mode #applyTextBtn, html.game-mode #downloadBtn, html.game-mode #status { display: none !important; }</style>
+  <script>if (new URLSearchParams(location.search).has('lobby')) document.documentElement.classList.add('game-mode');</script>
 
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=download" />
 
@@ -41,12 +42,13 @@ download
 
   <main id="gameView" class="hidden">
     <h1 id="gameHeading">GIF game</h1>
+    <p id="gameRole"></p>
     <p id="gameMessage" role="status"></p>
     <p id="gameScore"></p>
     <p id="lastRound"></p>
     <div id="gameCandidates"></div>
     <button id="rematchButton" class="hidden">Play again</button>
-    <button id="gameLeaveButton">Leave lobby</button>
+    <button id="gameLeaveButton" class="hidden">Return to main menu</button>
     <p id="gameError" role="alert"></p>
   </main>
 

@@ -37,6 +37,7 @@ let activeCode = null;
 let isHost = false;
 let activeLobby = null;
 let stopLobbyListener = null;
+let redirectingToGame = false;
 
 function setConnection(connected, label) {
 	elements.connectionText.textContent = label;
@@ -81,14 +82,24 @@ function showLobby(code, host) {
 
 function subscribeToLobby(code) {
 	if (stopLobbyListener) stopLobbyListener();
-	stopLobbyListener = onValue(ref(database, `lobbies/${code}`), (snapshot) => {
+	stopLobbyListener = onValue(ref(database, `lobbies/${code}`), async (snapshot) => {
 		activeLobby = snapshot.val();
 		if (!activeLobby) {
 			resetToHome('This lobby has been closed.');
 			return;
 		}
-		if (activeLobby.game && !window.location.pathname.endsWith('/genorator.html')) {
-			window.location.href = gameUrl(code);
+		if (activeLobby.game && !window.location.pathname.endsWith('/genorator.html') && !redirectingToGame) {
+			redirectingToGame = true;
+			try {
+				const disconnectRef = isHost
+					? ref(database, `lobbies/${code}`)
+					: ref(database, `lobbies/${code}/players/${user.uid}`);
+				await onDisconnect(disconnectRef).cancel();
+				window.location.href = gameUrl(code);
+			} catch (error) {
+				redirectingToGame = false;
+				elements.lobbyError.textContent = displayError(error, 'Could not open the game.');
+			}
 			return;
 		}
 		renderLobby();
@@ -175,7 +186,6 @@ async function startGame() {
 			matchId: String(Date.now()),
 			updatedAt: Date.now()
 		});
-		window.location.href = gameUrl(activeCode);
 	} catch (error) {
 		elements.lobbyError.textContent = displayError(error, 'Could not start the game.');
 	}
