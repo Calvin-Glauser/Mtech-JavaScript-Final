@@ -1,0 +1,228 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+:root {
+  --player-color: #657a65;
+  --button-color: color-mix(in srgb, var(--player-color) 76%, #20302b);
+}
+
+body {
+  max-width: 420px;
+  margin: 32px auto;
+  padding: 0 16px;
+  font: 16px/1.5 sans-serif;
+  color: #222;
+  transition: background-color 300ms ease;
+}
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 12px;
+}
+
+header strong {
+  font-size: 2em;
+  font-family: "Honk", sans-serif;
+  margin-bottom: -15px;
+}
+
+h1,
+h2,
+p {
+  margin-top: 0;
+}
+
+main {
+  padding-top: 24px;
+}
+
+section,
+article,
+aside {
+  margin-bottom: 20px;
+}
+
+article,
+aside {
+  border: 1px solid #ccc;
+  padding: 16px;
+}
+
+label {
+  display: block;
+  margin-bottom: 4px;
+}
+
+input,
+button {
+  box-sizing: border-box;
+  min-height: 38px;
+  padding: 7px 10px;
+  font: inherit;
+}
+
+input {
+  max-width: 100%;
+  border: 1px solid #999;
+}
+
+button {
+  cursor: pointer;
+  border: 0;
+  border-radius: 4px;
+  background-color: #52664f;
+  background-color: var(--button-color);
+  color: #fff;
+  transition: background-color 200ms ease, filter 200ms ease;
+}
+
+button:hover:not(:disabled) {
+  filter: brightness(1.08);
+}
+
+button:focus-visible,
+input:focus-visible {
+  outline: 3px solid var(--player-color);
+  outline-offset: 2px;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+.hidden {
+  display: none !important;
+}
+
+#playerName {
+  display: block;
+  width: 100%;
+
+  margin-bottom: 20px;
+}
+
+#lobbyCode {
+  width: 110px;
+}
+
+#playerList {
+  padding-left: 22px;
+}
+
+#playerList li {
+  padding: 6px 0;
+}
+
+.player-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.player-badges {
+  display: flex;
+  gap: 8px;
+}
+
+.badge {
+  font-size: 0.9em;
+}
+
+#setupNotice,
+[role="alert"] {
+  color: #a21d1d;
+}
+
+#connectionBadge {
+  margin-bottom: -12px;
+}
+
+#connectionDot {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  margin-right: 5px;
+  border-radius: 50%;
+  background: #888;
+}
+
+#connectionDot.connected {
+  background: #27823b;
+}
+
+#connectionDot.disconnected {
+  background: #b3261e;
+}
+
+section h1 {
+  margin-left: 10px;
+}
+
+section input {
+  border-radius: 4px;
+}
+
+section input:active,
+section input:focus {
+  outline: 2px solid #657a65;
+}
+
+.form-label {
+  margin-left: 10px;
+  font-size: 0.8em;
+}
+
+#lobbyCode {
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  width: 100%;
+}
+
+#joinButton,
+#hostButton {
+  width: 100%;
+  margin-top: 8px;
+}
+
+#joinButton:enabled,
+#hostButton:enabled {
+  background-color: var(--button-color);
+}
+
+#hostLobby,
+#joinLobby {
+  margin-top: -20px;
+}
+
+@media (min-width: 600px) {
+  .actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    margin: 16px auto;
+    padding: 0 12px;
+  }
+
+  header strong {
+    font-size: 1.65em;
+  }
+
+  article,
+  aside {
+    padding: 12px;
+  }
+
+  .player-row {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+}
